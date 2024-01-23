@@ -1,0 +1,5 @@
+# .gitignore
+secrets.yml
+private_key.pem
+ansible.cfg
+

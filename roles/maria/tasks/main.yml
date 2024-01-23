@@ -1,0 +1,14 @@
+---
+- name: Install MariaDB
+  apt:
+    name: mariadb-server
+    state: present
+  become: true
+
+- name: Start MariaDB service
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+  become: true
+

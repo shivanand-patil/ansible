@@ -1,0 +1,44 @@
+# Check whether config already exists
+- name: Check if Galera configuration exists
+  stat:
+    path: /etc/mysql/conf.d/galera.cnf
+  register: config_check
+
+# Copy Galera config only if it doesn't exist
+- name: Copy Galera config
+  template:
+    src: cluster.cnf.j2
+    dest: /etc/mysql/conf.d/galera.cnf
+    owner: root
+    mode: 0644
+  when: not config_check.stat.exists
+
+# Check for Galera idempotency on the first node
+- name: Check for Galera idempotency
+  command: "/usr/bin/mysql -u root -e 'SHOW STATUS LIKE \"wsrep_cluster_size\"'"
+  register: gal_stat_str
+  when: inventory_hostname == groups['nodes'][0]
+
+- set_fact:
+    galera_stat: "{{ gal_stat_str.stdout.split('\t')[2] }}"
+  when: inventory_hostname == groups['nodes'][0]
+
+# Stop MariaDB on all nodes
+- name: Stop MariaDB
+  service:
+    name: mariadb
+    state: stopped
+
+# Bootstrap Galera cluster from the first node
+- name: Bootstrap Galera cluster
+  command: galera_new_cluster
+  when:
+    - inventory_hostname == groups['nodes'][0]
+    - galera_stat == '0'
+
+# Start MariaDB on all nodes
+#- name: Start MariaDB
+#  service:
+#    name: mariadb
+#    state: started
+

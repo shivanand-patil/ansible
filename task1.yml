@@ -1,0 +1,19 @@
+  remote_user: shiv
+  hosts: iammaster
+  serial: 1
+  tasks:
+    - name: Node Names
+      command: hostname
+      register: output1
+    - name: output_write_node_name
+      lineinfile:
+        dest: /home/iammaster/Documents/output
+        line: "{{ output1.stdout }}"
+    - name: Node IPs
+      command: hostname -I
+      register: output2
+    - name: output_write_node_ip
+      lineinfile:
+        dest: /home/iammaster/Documents/output
+        line: "{{ output2.stdout }}"
+
