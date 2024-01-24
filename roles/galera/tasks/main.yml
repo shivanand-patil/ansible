@@ -35,10 +35,3 @@
   when:
     - inventory_hostname == groups['nodes'][0]
     - galera_stat == '0'
-
-# Start MariaDB on all nodes
-#- name: Start MariaDB
-#  service:
-#    name: mariadb
-#    state: started
-
